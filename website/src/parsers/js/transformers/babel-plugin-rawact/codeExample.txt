@@ -1,0 +1,16 @@
+import React from "react";
+
+export default () => {
+	return (
+		<div className="App">
+			<h1>Rawact</h1>
+			<p>
+				This application is written for React.js, but doesn't need React.js at
+				runtime.
+			</p>
+			<p style={{ fontWeight: "bold" }}>
+				A clever babel plugin compiles React away.
+			</p>
+		</div>
+	);
+};
