@@ -1,5 +1,3 @@
-import es2015 from 'babel-preset-es2015';
-import stage0 from 'babel-preset-stage-0';
 import presetReact from '@babel/preset-react';
 import rawact from 'babel-plugin-rawact';
 import pkg from 'babel-plugin-rawact/package';
@@ -15,21 +13,39 @@ export default {
 
   loadTransformer(callback) {
     require([
+      'prettier/standalone',
+      'prettier/parser-babylon',
       'babel7',
-    ], (babel) => callback({
-      babel,
+    ], (prettier, prettierParser, babel) => callback({
+      prettier, prettierParser, babel,
     }));
   },
 
-  transform({ babel }, transformCode) {
-    const options = {
+  transform({ prettier, prettierParser, babel }, transformCode) {
+    const prettierOptions = { plugins: [prettierParser] };
+    const optionsJsx = {
       presets: [presetReact],
+      ast: false,
+      babelrc: false,
+      highlightCode: true,
+    };
+    const jsxTransformed = prettier.format(
+      babel.transform(transformCode, optionsJsx).code,
+      prettierOptions
+    );
+
+    const options = {
       plugins: [rawact],
       ast: false,
       babelrc: false,
       highlightCode: true,
     };
 
-    return babel.transform(transformCode, options);
+    return `
+/*
+${jsxTransformed}
+*/
+${babel.transform(jsxTransformed, options).code}
+    `;
   },
 };
